@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -11,10 +10,8 @@ import 'model/application_event.dart';
 /// Plugin to list applications installed on an Android device
 /// iOS is not supported
 class DeviceApps {
-  static const MethodChannel _methodChannel =
-      MethodChannel('g123k/device_apps');
-  static const EventChannel _eventChannel =
-      EventChannel('g123k/device_apps_events');
+  static const MethodChannel _methodChannel = MethodChannel('g123k/device_apps');
+  static const EventChannel _eventChannel = EventChannel('g123k/device_apps_events');
 
   /// List installed applications on the device
   /// [includeSystemApps] will also include system apps (or pre-installed) like
@@ -25,13 +22,12 @@ class DeviceApps {
   /// [onlyAppsWithLaunchIntent] will only list applications when an entrypoint.
   /// It is similar to what a launcher will display
   static Future<List<Application>> getInstalledApplications({
-    bool includeSystemApps: false,
-    bool includeAppIcons: false,
-    bool onlyAppsWithLaunchIntent: false,
+    bool includeSystemApps = false,
+    bool includeAppIcons = false,
+    bool onlyAppsWithLaunchIntent = false,
   }) async {
     try {
-      final Object apps =
-          await _methodChannel.invokeMethod('getInstalledApps', <String, bool>{
+      final Object apps = await _methodChannel.invokeMethod('getInstalledApps', <String, bool>{
         'system_apps': includeSystemApps,
         'include_app_icons': includeAppIcons,
         'only_apps_with_launch_intent': onlyAppsWithLaunchIntent
@@ -73,11 +69,8 @@ class DeviceApps {
       throw Exception('The package name can not be empty');
     }
     try {
-      final Object? app = await _methodChannel.invokeMethod(
-          'getApp', <String, Object>{
-        'package_name': packageName,
-        'include_app_icon': includeAppIcon
-      });
+      final Object? app = await _methodChannel
+          .invokeMethod('getApp', <String, Object>{'package_name': packageName, 'include_app_icon': includeAppIcon});
 
       if (app != null && app is Map<dynamic, dynamic>) {
         return Application._(app);
@@ -165,8 +158,7 @@ class DeviceApps {
   static Stream<ApplicationEvent> listenToAppsChanges() {
     return _eventChannel
         .receiveBroadcastStream()
-        .map(((dynamic event) =>
-            ApplicationEvent._(event as Map<dynamic, dynamic>)))
+        .map(((dynamic event) => ApplicationEvent._(event as Map<dynamic, dynamic>)))
         .handleError((Object err) => null);
   }
 }
@@ -176,8 +168,7 @@ class _BaseApplication {
   /// Name of the package
   final String packageName;
 
-  _BaseApplication._fromMap(Map<dynamic, dynamic> map)
-      : packageName = map['package_name'] as String;
+  _BaseApplication._fromMap(Map<dynamic, dynamic> map) : packageName = map['package_name'] as String;
 }
 
 /// An application installed on the device
@@ -360,10 +351,7 @@ class ApplicationWithIcon extends Application {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      super == other &&
-          other is ApplicationWithIcon &&
-          runtimeType == other.runtimeType &&
-          _icon == other._icon;
+      super == other && other is ApplicationWithIcon && runtimeType == other.runtimeType && _icon == other._icon;
 
   @override
   int get hashCode => super.hashCode ^ _icon.hashCode;
@@ -420,10 +408,7 @@ abstract class ApplicationEvent {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ApplicationEvent &&
-          runtimeType == other.runtimeType &&
-          event == other.event;
+      identical(this, other) || other is ApplicationEvent && runtimeType == other.runtimeType && event == other.event;
 
   @override
   int get hashCode => event.hashCode;
